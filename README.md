@@ -108,4 +108,4 @@ make coverage
 
 ## License
 
-MIT License - Krishna Shahane
+MIT License
