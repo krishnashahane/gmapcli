@@ -1,4 +1,4 @@
-# GoogleMapsCLI
+# 🌎 GoogleMapsCLI
 
 A fast, modern CLI and Go library for the Google Maps Platform (Places API New + Routes API). Built by Krishna Shahane.
 
