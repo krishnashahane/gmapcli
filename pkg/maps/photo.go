@@ -11,19 +11,18 @@ import (
 
 // FetchPhotoURL retrieves a direct URL for a place photo.
 func (g *GoogleMaps) FetchPhotoURL(ctx context.Context, in PhotoURLInput) (PhotoURLOutput, error) {
-	name := trimmed(in.ResourceName)
-	if name == "" {
+	name := strings.TrimSpace(in.ResourceName)
+	if name == "" || len(name) > 1024 || strings.ContainsAny(name, "\r\n") || !strings.HasPrefix(name, "places/") || !strings.Contains(name, "/photos/") {
 		return PhotoURLOutput{}, InputError{Param: "resource_name", Reason: "cannot be empty"}
 	}
 
 	path := "/" + strings.TrimPrefix(name, "/") + "/media"
 	params := map[string]string{"skipHttpRedirect": "true"}
-	if in.MaxWidth > 0 {
-		params["maxWidthPx"] = strconv.Itoa(in.MaxWidth)
+	if in.MaxWidth < 0 || in.MaxWidth > 4800 || in.MaxHeight < 0 || in.MaxHeight > 4800 {
+		return PhotoURLOutput{}, InputError{Param: "size", Reason: "max width/height must be between 0 and 4800"}
 	}
-	if in.MaxHeight > 0 {
-		params["maxHeightPx"] = strconv.Itoa(in.MaxHeight)
-	}
+	if in.MaxWidth > 0 { params["maxWidthPx"] = strconv.Itoa(in.MaxWidth) }
+	if in.MaxHeight > 0 { params["maxHeightPx"] = strconv.Itoa(in.MaxHeight) }
 
 	ep, err := g.endpoint(path, params)
 	if err != nil {
