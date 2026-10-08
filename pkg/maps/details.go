@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -20,8 +21,11 @@ func (g *GoogleMaps) PlaceDetails(ctx context.Context, in PlaceInfoInput) (Place
 	if pid == "" {
 		return PlaceInfo{}, InputError{Param: "id", Reason: "cannot be empty"}
 	}
+	if len(pid) > 512 || strings.ContainsAny(pid, "\r\n") {
+		return PlaceInfo{}, InputError{Param: "id", Reason: "is too long or contains invalid characters"}
+	}
 
-	ep, err := g.endpoint("/places/"+pid, map[string]string{
+	ep, err := g.endpoint("/places/"+url.PathEscape(pid), map[string]string{
 		"languageCode": trimmed(in.Lang),
 		"regionCode":   trimmed(in.CountryCode),
 	})
