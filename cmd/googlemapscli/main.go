@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/krishnashahane/googlemapscli/internal/terminal"
+	"github.com/krishnashahane/gmapcli/internal/terminal"
 )
 
 var quit = os.Exit
