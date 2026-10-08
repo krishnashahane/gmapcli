@@ -13,7 +13,7 @@ import (
 func (g *GoogleMaps) FetchPhotoURL(ctx context.Context, in PhotoURLInput) (PhotoURLOutput, error) {
 	name := strings.TrimSpace(in.ResourceName)
 	if name == "" || len(name) > 1024 || strings.ContainsAny(name, "\r\n") || !strings.HasPrefix(name, "places/") || !strings.Contains(name, "/photos/") {
-		return PhotoURLOutput{}, InputError{Param: "resource_name", Reason: "cannot be empty"}
+		return PhotoURLOutput{}, InputError{Param: "resource_name", Reason: "must be a valid places/.../photos/... resource name"}
 	}
 
 	path := "/" + strings.TrimPrefix(name, "/") + "/media"
