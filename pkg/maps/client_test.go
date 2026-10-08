@@ -18,7 +18,7 @@ func TestNormalizeBaseURL(t *testing.T) {
 		{"official places", "https://places.googleapis.com/v1/", PlacesEndpoint, "https://places.googleapis.com/v1"},
 		{"official routes", "https://routes.googleapis.com/", RoutesEndpoint, "https://routes.googleapis.com"},
 		{"untrusted host falls back", "https://example.com", PlacesEndpoint, PlacesEndpoint},
-		{"http falls back", "http://127.0.0.1:8080", PlacesEndpoint, PlacesEndpoint},
+		{"loopback HTTP allowed", "http://127.0.0.1:8080", PlacesEndpoint, "http://127.0.0.1:8080"},
 	}
 
 	for _, tt := range tests {
