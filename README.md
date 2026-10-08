@@ -1,63 +1,90 @@
-# 🌎 GoogleMapsCLI
+# gmapcli
 
-A fast, modern CLI and Go library for the Google Maps Platform (Places API New + Routes API). Built by Krishna Shahane.
+A Go CLI and library for the Google Maps Platform **Places API (New)** and **Routes API**.
+
+The command-line binary is named **`googlemapscli`**.
 
 ## Features
 
-- Text search with filters: keyword, category, open now, min rating, price tiers
-- Autocomplete suggestions for places and queries (session token support)
-- Nearby search around a geographic point
-- Place details: hours, phone, website, rating, reviews, photos
-- Photo media URLs from photo resource names
-- Route search along a driving/walking path (Routes API)
-- Directions between two points with distance, duration, and turn-by-turn steps
-- Location lookup: resolve freeform addresses to place candidates
-- Location bias and pagination support
-- Color terminal output + `--json` mode (respects `NO_COLOR`)
+- Text place search with keyword, category, open-now, rating, price, location-bias, and pagination options.
+- Place autocomplete suggestions with optional session-token support.
+- Nearby place search.
+- Place details with hours, contact information, reviews, and photos.
+- Photo media URLs.
+- Location lookup from free-form text.
+- Route search for places along a path.
+- Directions with walking, driving, bicycling, or transit modes.
+- Human-readable terminal output or `--json`.
+- Reusable Go library under `pkg/maps`.
+
+## Requirements
+
+- Go 1.26 or newer.
+- Git is not required.
+- A Google Maps Platform API key with the **Places API (New)** and **Routes API** enabled.
 
 ## Install
 
+Install the CLI directly:
+
 ```bash
-go install github.com/krishnashahane/googlemapscli/cmd/googlemapscli@latest
+go install github.com/krishnashahane/gmapcli/cmd/googlemapscli@latest
 ```
 
-Or build from source:
+The binary will be installed as `googlemapscli` in your Go bin directory.
+
+Or build locally:
 
 ```bash
+git clone https://github.com/krishnashahane/gmapcli.git
+cd gmapcli
 make build
 ```
 
-## Setup
+## Configure
+
+Set the API key through the environment:
+
+macOS/Linux:
 
 ```bash
-export GOOGLE_PLACES_API_KEY="your-key-here"
+export GOOGLE_PLACES_API_KEY="your-key"
 ```
 
-Enable the **Places API (New)** and **Routes API** in your Google Cloud Console.
+Windows PowerShell:
+
+```powershell
+$env:GOOGLE_PLACES_API_KEY="your-key"
+```
+
+Restrict the key in Google Cloud to the APIs this tool uses and to the applications/environments where the key is actually needed.
 
 ## Usage
 
+```text
+googlemapscli [global flags] <command>
 ```
-googlemapscli [flags] <command>
 
 Commands:
-  search      Search places by text query
-  suggest     Autocomplete places and queries
-  nearby      Search nearby places by location
-  route       Search places along a route
-  directions  Get directions between two points
-  info        Fetch place details by place ID
-  photo       Fetch a photo URL by photo name
-  lookup      Resolve a location string to candidate places
+
+```text
+search
+suggest
+nearby
+route
+directions
+info
+photo
+lookup
 ```
 
-### Examples
+Examples:
 
 ```bash
 googlemapscli search "coffee" --min-score 4 --only-open --limit 5 \
   --lat 40.8065 --lng -73.9719 --radius 3000
 
-googlemapscli suggest "cof" --session "my-session" --limit 5
+googlemapscli suggest "cof" --limit 5
 
 googlemapscli nearby --lat 47.6062 --lng -122.3321 --radius 1500 --category cafe
 
@@ -72,40 +99,98 @@ googlemapscli lookup "Riverside Park, New York" --limit 5
 googlemapscli search "sushi" --json
 ```
 
-## Library Usage
+Use `googlemapscli <command> --help` for command-specific options.
+
+## Library
 
 ```go
-gm := maps.NewGoogleMaps(maps.Settings{
-    Key:     os.Getenv("GOOGLE_PLACES_API_KEY"),
-    Timeout: 8 * time.Second,
-})
+package main
 
-result, err := gm.TextSearch(ctx, maps.TextSearchInput{
-    Text:       "italian restaurant",
-    MaxResults: 10,
-    Vicinity:   &maps.Area{Latitude: 40.8065, Longitude: -73.9719, Radius: 3000},
-})
+import (
+    "context"
+    "os"
+    "time"
 
-info, err := gm.PlaceDetails(ctx, maps.PlaceInfoInput{
-    ID:          "ChIJN1t_tDeuEmsRUsoyG83frY4",
-    WithReviews: true,
-})
+    "github.com/krishnashahane/gmapcli/pkg/maps"
+)
 
-nav, err := gm.Navigate(ctx, maps.NavigationInput{
-    Origin:      "Pike Place Market",
-    Destination: "Space Needle",
-    TravelBy:    "walking",
-})
+func main() {
+    gm := maps.NewGoogleMaps(maps.Settings{
+        Key:     os.Getenv("GOOGLE_PLACES_API_KEY"),
+        Timeout: 8 * time.Second,
+    })
+
+    result, err := gm.TextSearch(context.Background(), maps.TextSearchInput{
+        Text:       "italian restaurant",
+        MaxResults: 10,
+        Vicinity: &maps.Area{
+            Latitude:  40.8065,
+            Longitude: -73.9719,
+            Radius:    3000,
+        },
+    })
+    _ = result
+    _ = err
+}
 ```
 
-## Testing
+## Security and reliability
+
+- API keys are sent in the Google API header, not query strings.
+- GitHub-style or shell-style command injection is avoided because CLI inputs are passed to the HTTP client as structured values.
+- API base URLs are restricted to Google's official HTTPS hosts; loopback HTTP endpoints are not accepted by default.
+- HTTP redirects are disabled so the API key is not forwarded to an unexpected redirect target.
+- Response bodies are capped at 1 MiB.
+- Inputs such as coordinates, result counts, route samples, photo sizes, and navigation parameters are validated.
+- Place IDs and photo resource names are validated before being inserted into URL paths.
+- The default HTTP client has a bounded timeout.
+- The CLI never prints the configured API key as part of normal error handling.
+
+## Development and tests
+
+Run the test suite:
 
 ```bash
 make test
+```
+
+Run static analysis:
+
+```bash
 make lint
+```
+
+Generate coverage:
+
+```bash
 make coverage
+```
+
+Format code before committing:
+
+```bash
+gofmt -w cmd internal pkg
+```
+
+For a dependency vulnerability scan, use the official Go vulnerability tooling:
+
+```bash
+govulncheck ./...
+```
+
+## Project layout
+
+```text
+gmapcli/
+├── cmd/googlemapscli/       # CLI entry point
+├── internal/terminal/       # CLI commands, formatting, and execution
+├── pkg/maps/                # Public Google Maps client library
+├── Makefile
+├── go.mod
+├── go.sum
+└── LICENSE
 ```
 
 ## License
 
-MIT License
+MIT
