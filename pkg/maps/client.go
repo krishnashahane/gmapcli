@@ -38,18 +38,23 @@ func NewGoogleMaps(cfg Settings) *GoogleMaps {
 	routesURL := normalizeBaseURL(cfg.RoutesURL, RoutesEndpoint)
 	directionsURL := normalizeBaseURL(cfg.DirectionsURL, DirectionsEndpoint)
 
+	timeout := cfg.Timeout
+	if timeout <= 0 {
+		timeout = 10 * time.Second
+	}
 	httpClient := cfg.HTTP
 	if httpClient == nil {
-		timeout := cfg.Timeout
-		if timeout <= 0 {
-			timeout = 10 * time.Second
-		}
-		httpClient = &http.Client{
-			Timeout: timeout,
-			CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
-				return http.ErrUseLastResponse
-			},
-		}
+		httpClient = &http.Client{}
+	} else {
+		cloned := *httpClient
+		httpClient = &cloned
+	}
+	if httpClient.Timeout <= 0 {
+		httpClient.Timeout = timeout
+	}
+	if httpClient.CheckRedirect == nil {
+		httpClient.CheckRedirect = func(_ *http.Request, _ []*http.Request) error {
+		return http.ErrUseLastResponse
 	}
 
 	return &GoogleMaps{
