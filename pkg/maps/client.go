@@ -34,18 +34,9 @@ type Settings struct {
 
 // NewGoogleMaps creates a configured API wrapper.
 func NewGoogleMaps(cfg Settings) *GoogleMaps {
-	placesURL := strings.TrimRight(cfg.PlacesURL, "/")
-	if placesURL == "" {
-		placesURL = PlacesEndpoint
-	}
-	routesURL := strings.TrimRight(cfg.RoutesURL, "/")
-	if routesURL == "" {
-		routesURL = RoutesEndpoint
-	}
-	directionsURL := strings.TrimRight(cfg.DirectionsURL, "/")
-	if directionsURL == "" {
-		directionsURL = DirectionsEndpoint
-	}
+	plces := normalizeBaseURL(cfg.PlacesURL, PlacesEndpoint)
+	routesURL := normalizeBaseURL(cfg.RoutesURL, RoutesEndpoint)
+	directionsURL := normalizeBaseURL(cfg.DirectionsURL, DirectionsEndpoint)
 
 	httpClient := cfg.HTTP
 	if httpClient == nil {
@@ -57,7 +48,7 @@ func NewGoogleMaps(cfg Settings) *GoogleMaps {
 	}
 
 	return &GoogleMaps{
-		key:           cfg.Key,
+		key:           strings.TrimSpace(cfg.Key),
 		placesURL:     placesURL,
 		routesURL:     routesURL,
 		directionsURL: directionsURL,
@@ -118,7 +109,22 @@ func (g *GoogleMaps) call(
 	return data, nil
 }
 
+func normalizeBaseURL(raw, fallback string) string {
+	base := strings.TrimRight(strings.TrimSpace(raw), "/")
+	if base == "" {
+		base = fallback
+	}
+	u, err := url.Parse(base)
+	if err != nil || u.Scheme != "https" || u.Host == "" || u.User != nil {
+		return strings.TrimRight(fallback, "/")
+	}
+	return base
+}
+
 func (g *GoogleMaps) endpoint(path string, params map[string]string) (string, error) {
+	if path == "" || !strings.HasPrefix(path, "/") || strings.Contains(path, "..") {
+		return "", errors.New("googlemapscli: invalid endpoint path")
+	}
 	full := g.placesURL + path
 	if len(params) == 0 {
 		return full, nil
