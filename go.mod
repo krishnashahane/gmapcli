@@ -1,4 +1,4 @@
-module github.com/krishnashahane/googlemapscli
+module github.com/krishnashahane/gmapcli
 
 go 1.26
 
