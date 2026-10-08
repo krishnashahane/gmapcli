@@ -33,6 +33,8 @@ go install github.com/krishnashahane/gmapcli/cmd/googlemapscli@latest
 
 The binary will be installed as `googlemapscli` in your Go bin directory.
 
+The CLI defaults Google Maps `languageCode` to `en`; use `--lang` to request another supported language. Google may still return local-language/transliterated address content by design.
+
 Or build locally:
 
 ```bash
