@@ -1,10 +1,11 @@
 BINARY := googlemapscli
 PKG    := ./cmd/googlemapscli
+VERSION ?= dev
 
 .PHONY: build test lint coverage clean
 
 build:
-	go build -o $(BINARY) $(PKG)
+	go build -trimpath -ldflags "-X github.com/krishnashahane/gmapcli/internal/terminal.BuildVersion=$(VERSION)" -o $(BINARY) $(PKG)
 
 test:
 	go test ./... -count=1
