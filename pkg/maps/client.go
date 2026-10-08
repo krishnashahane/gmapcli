@@ -132,7 +132,7 @@ func normalizeBaseURL(raw, fallback string) string {
 	local := host == "localhost" || host == "127.0.0.1" || host == "::1"
 	allowed := host == "places.googleapis.com" || host == "routes.googleapis.com" || local
 	safeScheme := u.Scheme == "https" || (local && u.Scheme == "http")
-	if !safeScheme || u.Host == "" || u.User != nil || !allowed {
+	if !safeScheme || u.Host == "" || u.User != nil || !allowed || u.RawQuery != "" || u.Fragment != "" {
 		return strings.TrimRight(fallback, "/")
 	}
 	return base
