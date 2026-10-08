@@ -119,7 +119,7 @@ func (c *SearchCmd) Run(h *Handle) error {
 		Text:       c.Query,
 		MaxResults: c.Limit,
 		Cursor:     c.Cursor,
-		Lang:       c.Lang,
+		Lang:       defaultLanguage(c.Lang),
 		CountryCode: c.Country,
 	}
 
@@ -180,7 +180,7 @@ func (c *SuggestCmd) Run(h *Handle) error {
 		Fragment:    c.Fragment,
 		MaxResults:  c.Limit,
 		Session:     c.Session,
-		Lang:        c.Lang,
+		Lang:        defaultLanguage(c.Lang),
 		CountryCode: c.Country,
 	}
 
@@ -214,7 +214,7 @@ func (c *NearbyCmd) Run(h *Handle) error {
 		MaxResults:  c.Limit,
 		Include:     c.Category,
 		Exclude:     c.ExcludeCat,
-		Lang:        c.Lang,
+		Lang:        defaultLanguage(c.Lang),
 		CountryCode: c.Country,
 	}
 
@@ -240,7 +240,7 @@ func (c *NearbyCmd) Run(h *Handle) error {
 func (c *InfoCmd) Run(h *Handle) error {
 	result, err := h.gm.PlaceDetails(context.Background(), maps.PlaceInfoInput{
 		ID:          c.PlaceID,
-		Lang:        c.Lang,
+		Lang:        defaultLanguage(c.Lang),
 		CountryCode: c.Country,
 		WithReviews: c.Reviews,
 		WithPhotos:  c.Photos,
@@ -279,7 +279,7 @@ func (c *LookupCmd) Run(h *Handle) error {
 	in := maps.LocationLookupInput{
 		Address:     c.Address,
 		MaxResults:  c.Limit,
-		Lang:        c.Lang,
+		Lang:        defaultLanguage(c.Lang),
 		CountryCode: c.Country,
 	}
 
@@ -345,7 +345,7 @@ func (c *DirectionsCmd) Run(h *Handle) error {
 		DestinationID: c.ToID,
 		TravelBy:      primary,
 		MeasureSystem: c.Units,
-		Lang:          c.Lang,
+		Lang:          defaultLanguage(c.Lang),
 		CountryCode:   c.Country,
 	}
 	if c.FromLat != nil || c.FromLng != nil {
@@ -423,4 +423,12 @@ func reportError(w io.Writer, err error) int {
 	}
 	_, _ = fmt.Fprintln(w, err.Error())
 	return 1
+}
+
+
+func defaultLanguage(value string) string {
+	if strings.TrimSpace(value) == "" {
+		return "en"
+	}
+	return strings.TrimSpace(value)
 }
