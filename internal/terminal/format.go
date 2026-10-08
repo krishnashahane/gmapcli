@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/krishnashahane/googlemapscli/pkg/maps"
+	"github.com/krishnashahane/gmapcli/pkg/maps"
 )
 
 const noData = "No results."
