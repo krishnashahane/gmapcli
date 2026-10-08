@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kong"
-	"github.com/krishnashahane/googlemapscli/pkg/maps"
+	"github.com/krishnashahane/gmapcli/pkg/maps"
 )
 
 // Handle wires the CLI output and API access.
