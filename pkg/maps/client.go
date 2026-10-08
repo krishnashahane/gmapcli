@@ -41,10 +41,15 @@ func NewGoogleMaps(cfg Settings) *GoogleMaps {
 	httpClient := cfg.HTTP
 	if httpClient == nil {
 		timeout := cfg.Timeout
-		if timeout == 0 {
+		if timeout <= 0 {
 			timeout = 10 * time.Second
 		}
-		httpClient = &http.Client{Timeout: timeout}
+		httpClient = &http.Client{
+			Timeout: timeout,
+			CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		}
 	}
 
 	return &GoogleMaps{
@@ -115,7 +120,10 @@ func normalizeBaseURL(raw, fallback string) string {
 		base = fallback
 	}
 	u, err := url.Parse(base)
-	if err != nil || u.Scheme != "https" || u.Host == "" || u.User != nil {
+	host := strings.ToLower(u.Hostname())
+	allowed := host == "places.googleapis.com" || host == "routes.googleapis.com" ||
+		host == "localhost" || host == "127.0.0.1" || host == "::1"
+	if err != nil || u.Scheme != "https" || u.Host == "" || u.User != nil || !allowed {
 		return strings.TrimRight(fallback, "/")
 	}
 	return base
