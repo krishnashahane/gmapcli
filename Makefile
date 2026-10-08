@@ -1,7 +1,7 @@
 BINARY := googlemapscli
 PKG    := ./cmd/googlemapscli
 
-.PHONY: build test lint clean
+.PHONY: build test lint coverage clean
 
 build:
 	go build -o $(BINARY) $(PKG)
