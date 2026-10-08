@@ -28,7 +28,6 @@ type GlobalFlags struct {
 	Timeout       time.Duration `help:"HTTP timeout." default:"10s"`
 	JSON          bool          `help:"Output as JSON."`
 	NoColor       bool          `help:"Disable colored output."`
-	Verbose       bool          `help:"Enable verbose logging."`
 	Version       VersionFlag   `name:"version" help:"Print version and exit."`
 }
 
