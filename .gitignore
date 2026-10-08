@@ -1,0 +1,14 @@
+# Build artifacts
+googlemapscli
+*.test
+coverage.txt
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
