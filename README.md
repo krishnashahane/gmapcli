@@ -138,7 +138,7 @@ func main() {
 
 - API keys are sent in the Google API header, not query strings.
 - GitHub-style or shell-style command injection is avoided because CLI inputs are passed to the HTTP client as structured values.
-- API base URLs are restricted to Google's official HTTPS hosts; loopback HTTP endpoints are not accepted by default.
+- API base URLs are restricted to Google's official HTTPS hosts; HTTP is allowed only for loopback local testing.
 - HTTP redirects are disabled so the API key is not forwarded to an unexpected redirect target.
 - Response bodies are capped at 1 MiB.
 - Inputs such as coordinates, result counts, route samples, photo sizes, and navigation parameters are validated.
