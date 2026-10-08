@@ -137,6 +137,7 @@ func main() {
 ## Security and reliability
 
 - API keys are sent in the Google API header, not query strings.
+- CLI API requests default to English (`--lang` overrides the language); user-generated Google content may still appear in its original language.
 - GitHub-style or shell-style command injection is avoided because CLI inputs are passed to the HTTP client as structured values.
 - API base URLs are restricted to Google's official HTTPS hosts; HTTP is allowed only for loopback local testing.
 - HTTP redirects are disabled so the API key is not forwarded to an unexpected redirect target.
