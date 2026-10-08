@@ -34,7 +34,7 @@ type Settings struct {
 
 // NewGoogleMaps creates a configured API wrapper.
 func NewGoogleMaps(cfg Settings) *GoogleMaps {
-	plces := normalizeBaseURL(cfg.PlacesURL, PlacesEndpoint)
+	placesURL := normalizeBaseURL(cfg.PlacesURL, PlacesEndpoint)
 	routesURL := normalizeBaseURL(cfg.RoutesURL, RoutesEndpoint)
 	directionsURL := normalizeBaseURL(cfg.DirectionsURL, DirectionsEndpoint)
 
