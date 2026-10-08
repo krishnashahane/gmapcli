@@ -121,9 +121,10 @@ func normalizeBaseURL(raw, fallback string) string {
 	}
 	u, err := url.Parse(base)
 	host := strings.ToLower(u.Hostname())
-	allowed := host == "places.googleapis.com" || host == "routes.googleapis.com" ||
-		host == "localhost" || host == "127.0.0.1" || host == "::1"
-	if err != nil || u.Scheme != "https" || u.Host == "" || u.User != nil || !allowed {
+	local := host == "localhost" || host == "127.0.0.1" || host == "::1"
+	allowed := host == "places.googleapis.com" || host == "routes.googleapis.com" || local
+	safeScheme := u.Scheme == "https" || (local && u.Scheme == "http")
+	if err != nil || !safeScheme || u.Host == "" || u.User != nil || !allowed {
 		return strings.TrimRight(fallback, "/")
 	}
 	return base
